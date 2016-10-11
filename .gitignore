@@ -92,3 +92,5 @@ captures/
 # Keystore files
 *.jks
 /.idea/
+app/libs/
+app/src/main/res/drawable/
