@@ -2,33 +2,32 @@ package io.github.ceosilvajr.calculator;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
-  private TextView tvNumberDisplay;
+  private EditText edtFirstNumber;
+  private EditText edtSecondNumber;
 
-  private Button btnClear;
-  private Button btnPositiveNegative;
-  private Button btnPercentage;
-  private Button btnDivide;
-  private Button btnMultiply;
-  private Button btnMinus;
-  private Button btnAdd;
-  private Button btnDot;
+  private TextView tvOperation;
+  private TextView tvFirstNumber;
+  private TextView tvSecondNumber;
+  private TextView tvAnswer;
+
+  private RadioGroup rgOperators;
+  private RadioButton rbDivide;
+  private RadioButton rbMultiply;
+  private RadioButton rbAdd;
+  private RadioButton rbMinus;
+
   private Button btnEquals;
-
-  private Button btn0;
-  private Button btn1;
-  private Button btn2;
-  private Button btn3;
-  private Button btn4;
-  private Button btn5;
-  private Button btn6;
-  private Button btn7;
-  private Button btn8;
-  private Button btn9;
+  private Button btnClear;
 
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -37,27 +36,96 @@ public class MainActivity extends AppCompatActivity {
   }
 
   private void initView() {
-    tvNumberDisplay = (TextView) findViewById(R.id.tvNumberDisplay);
+    edtFirstNumber = (EditText) findViewById(R.id.edtFirstNumber);
+    edtSecondNumber = (EditText) findViewById(R.id.edtSecondNumber);
 
-    btnClear = (Button) findViewById(R.id.btnClear);
-    btnPositiveNegative = (Button) findViewById(R.id.btnPositiveNegative);
-    btnPercentage = (Button) findViewById(R.id.btnPercentage);
-    btnDivide = (Button) findViewById(R.id.btnDivide);
-    btnMultiply = (Button) findViewById(R.id.btnMultiply);
-    btnMinus = (Button) findViewById(R.id.btnMinus);
-    btnAdd = (Button) findViewById(R.id.btnAdd);
-    btnDot = (Button) findViewById(R.id.btnDot);
+    rgOperators = (RadioGroup) findViewById(R.id.rgOperators);
+    rbDivide = (RadioButton) findViewById(R.id.rbDivide);
+    rbMultiply = (RadioButton) findViewById(R.id.rbMultiply);
+    rbMinus = (RadioButton) findViewById(R.id.rbMinus);
+    rbAdd = (RadioButton) findViewById(R.id.rbAdd);
+
     btnEquals = (Button) findViewById(R.id.btnEquals);
 
-    btn0 = (Button) findViewById(R.id.btn0);
-    btn1 = (Button) findViewById(R.id.btn1);
-    btn2 = (Button) findViewById(R.id.btn2);
-    btn3 = (Button) findViewById(R.id.btn3);
-    btn4 = (Button) findViewById(R.id.btn4);
-    btn5 = (Button) findViewById(R.id.btn5);
-    btn6 = (Button) findViewById(R.id.btn6);
-    btn7 = (Button) findViewById(R.id.btn7);
-    btn8 = (Button) findViewById(R.id.btn8);
-    btn9 = (Button) findViewById(R.id.btn9);
+    tvFirstNumber = (TextView) findViewById(R.id.tvFirstNumber);
+    tvSecondNumber = (TextView) findViewById(R.id.tvSecondNumber);
+    tvOperation = (TextView) findViewById(R.id.tvOperation);
+    tvAnswer = (TextView) findViewById(R.id.tvAnswer);
+
+    btnClear = (Button) findViewById(R.id.btnClear);
+
+    btnEquals.setOnClickListener(new EqualClicked());
+    btnClear.setOnClickListener(new ClearButtonClicked());
+  }
+
+  private class ClearButtonClicked implements View.OnClickListener {
+
+    @Override public void onClick(View view) {
+      tvFirstNumber.setText("0");
+      tvSecondNumber.setText("0");
+      tvAnswer.setText("0");
+      tvOperation.setText("*");
+      rbMultiply.setChecked(true);
+      rbDivide.setChecked(false);
+      rbAdd.setChecked(false);
+      rbMinus.setChecked(false);
+    }
+  }
+
+  private class EqualClicked implements View.OnClickListener {
+
+    @Override public void onClick(View view) {
+
+      String firstNumber = edtFirstNumber.getText().toString();
+      String secondNumber = edtSecondNumber.getText().toString();
+
+      if (!isValidateNumbers(firstNumber, secondNumber)) {
+        return;
+      }
+
+      String answer = compute(Double.valueOf(firstNumber), Double.valueOf(secondNumber));
+
+      tvFirstNumber.setText(firstNumber);
+      tvSecondNumber.setText(secondNumber);
+      tvAnswer.setText(answer);
+
+      edtFirstNumber.setText("");
+      edtSecondNumber.setText("");
+    }
+
+    private boolean isValidateNumbers(String firstNumber, String secondNumber) {
+      if (firstNumber.length() == 0) {
+        Toast.makeText(MainActivity.this, "Please input first number", Toast.LENGTH_SHORT).show();
+        return false;
+      } else if (secondNumber.length() == 0) {
+        Toast.makeText(MainActivity.this, "Please input second number", Toast.LENGTH_SHORT).show();
+        return false;
+      }
+      return true;
+    }
+
+    private String compute(double firstNumber, double secondNumber) {
+      int radioButtonId = rgOperators.getCheckedRadioButtonId();
+      double answer = 0;
+      switch (radioButtonId) {
+        case R.id.rbMultiply:
+          answer = firstNumber * secondNumber;
+          tvOperation.setText("*");
+          break;
+        case R.id.rbAdd:
+          answer = firstNumber + secondNumber;
+          tvOperation.setText("+");
+          break;
+        case R.id.rbDivide:
+          answer = firstNumber / secondNumber;
+          tvOperation.setText("/");
+          break;
+        case R.id.rbMinus:
+          answer = firstNumber - secondNumber;
+          tvOperation.setText("-");
+          break;
+      }
+      return Double.toString(answer);
+    }
   }
 }
